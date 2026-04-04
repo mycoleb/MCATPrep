@@ -4,7 +4,6 @@ import ebooklib
 from ebooklib import epub
 from bs4 import BeautifulSoup
 
-# List of books to parse
 BOOKS = [
     "MCAT Organic Chemistry Review 2026-2027 -- Kaplan Test Prep -- 2025 -- Kaplan Test Prep -- 2a9b7fa764f3068db1e0a88efdc6d2db -- Anna’s Archive.epub",
     "MCAT Behavioral Sciences Review 2026-2027 -- Alexander Stone Macnow (Ed) -- 2025 -- Kaplan Test Prep -- cb2ba481fac1c453f5c7d265181c3b66 -- Anna’s Archive.epub"
@@ -12,49 +11,57 @@ BOOKS = [
 
 def build_cache():
     master_cache = {}
-
     for book_path in BOOKS:
-        if not os.path.exists(book_path):
-            print(f"Skipping: {book_path} (File not found)")
-            continue
-            
-        print(f"Parsing {book_path}...")
+        if not os.path.exists(book_path): continue
         book = epub.read_epub(book_path)
         book_title = book.get_metadata('DC', 'title')[0][0]
         master_cache[book_title] = {}
 
-        # Iterate through items in the EPUB to find practice sections
+        # Scan all documents to find all practice sections
         for item in book.get_items_of_type(ebooklib.ITEM_DOCUMENT):
-            soup = BeautifulSoup(item.get_content(), 'lxml')
-            
-            # Identify Chapter Title
-            chapter_tag = soup.find(['h1', 'h2'], class_='chapter-title')
-            if not chapter_tag: continue
-            chapter_name = chapter_tag.get_text().strip()
-            
-            # Find Question Blocks (usually in a list or div with specific classes)
-            questions = []
-            q_blocks = soup.find_all('div', class_='question-block') # Example class
-            
-            for q in q_blocks:
-                text = q.find('p', class_='question-text').get_text()
-                options = [opt.get_text() for opt in q.find_all('li', class_='option')]
-                ans = q.get('data-answer') # Kaplan often stores answer in metadata or key
+            content = item.get_content().decode('utf-8')
+            if "Practice Questions" not in content and "Science Mastery" not in content:
+                continue
                 
-                questions.append({
-                    "question": text,
-                    "options": options,
-                    "answer": ans,
-                    "book": book_title
-                })
+            soup = BeautifulSoup(content, 'html.parser')
+            chapter_name = soup.find(['h1', 'h2']).get_text().strip() if soup.find(['h1', 'h2']) else item.get_name()
+            
+            # Find the Answer Key for this specific section
+            ans_key = []
+            ans_header = soup.find(lambda t: t.name in ['h1', 'h2', 'p'] and "Answer Key" in t.text)
+            if ans_header:
+                ans_list = ans_header.find_next('ol')
+                if ans_list:
+                    ans_key = [li.get_text().strip()[0].upper() for li in ans_list.find_all('li')]
+
+            # Extract all questions in the list-bold category
+            questions = []
+            main_list = soup.find('ol', class_='list-bold')
+            if main_list:
+                q_items = main_list.find_all('li', recursive=False)
+                for i, li in enumerate(q_items):
+                    nested_ol = li.find('ol')
+                    if not nested_ol: continue
+                    
+                    options = [opt.get_text().strip() for opt in nested_ol.find_all('li')]
+                    q_text = li.find(text=True, recursive=False) or li.get_text().split('A)')[0]
+                    imgs = [img['src'].split('/')[-1] for img in li.find_all('img')]
+                    
+                    if q_text and options:
+                        questions.append({
+                            "question": str(q_text).strip(),
+                            "options": options,
+                            "answer": ans_key[i] if i < len(ans_key) else "A",
+                            "image_list": imgs,
+                            "book_path": book_path
+                        })
             
             if questions:
                 master_cache[book_title][chapter_name] = questions
 
-    # Save everything to a JSON file
-    with open('quiz_cache.json', 'w') as f:
+    with open('localized_cache.json', 'w') as f:
         json.dump(master_cache, f, indent=4)
-    print("Cache successfully built!")
+    print("New cache built with all found questions.")
 
 if __name__ == "__main__":
     build_cache()
