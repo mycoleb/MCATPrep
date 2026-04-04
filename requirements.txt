@@ -1,0 +1,10 @@
+# Document Parsing
+ebooklib==0.18
+beautifulsoup4==4.12.3
+lxml==5.1.0
+
+# UI & Web (Optional but recommended based on your EMR project)
+streamlit==1.32.0
+
+# Data Management
+pandas==2.2.1
