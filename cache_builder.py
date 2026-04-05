@@ -9,11 +9,12 @@ from xml.etree import ElementTree as ET
 from bs4 import BeautifulSoup, NavigableString, Tag
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
+# 
+
 BOOKS = [
-    os.path.join(BASE_DIR, "MCAT Organic Chemistry Review 2026-2027 -- Kaplan Test Prep -- 2025 -- Kaplan Test Prep -- 2a9b7fa764f3068db1e0a88efdc6d2db -- Anna’s Archive.epub"),
-    os.path.join(BASE_DIR, "MCAT Behavioral Sciences Review 2026-2027 -- Alexander Stone Macnow (Ed) -- 2025 -- Kaplan Test Prep -- cb2ba481fac1c453f5c7d265181c3b66 -- Anna’s Archive.epub"),
-    os.path.join(BASE_DIR, "MCAT Critical Analysis and Reasoning Skills Review 2026-2027 -- Kaplan Test Prep -- 2025 -- Kaplan Test Prep -- 3ea69d76c1965f7253507d4b46c64673 -- Anna’s Archive.epub"),
-    os.path.join(BASE_DIR, "MCAT General Chemistry Review 2026-2027 -- Alexander Stone Macnow (Ed) -- 2025 -- Kaplan Test Prep -- 3e9d80d24e101783515456f91f18579d -- Anna’s Archive.epub"),
+    os.path.join(BASE_DIR, f) 
+    for f in os.listdir(BASE_DIR) 
+    if f.endswith(".epub")
 ]
 
 OUTPUT_FILE = "localized_cache.json"

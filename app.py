@@ -159,8 +159,10 @@ selected_label = st.radio("Options:", display_options, key=choice_key)
 for i, opt in enumerate(options):
     if opt.get("images"):
         with st.expander(f"Show image(s) for option {chr(ord('A') + i)}"):
-            render_image_list(q["book_path"], opt["images"], width=300)
-
+            # 
+            current_book_filename = os.path.basename(q["book_path"])
+            actual_epub_path = os.path.join(os.getcwd(), current_book_filename)
+            render_image_list(actual_epub_path, q["image_list"], width=450)
 qid = f"{book}|{section}|{st.session_state.idx}"
 
 if st.button("Submit"):
