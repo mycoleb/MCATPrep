@@ -82,11 +82,14 @@ def answer_letter_to_index(letter: str) -> int:
     return -1
 
 
+# In app.py
 def display_option(option_index: int, option: dict):
     letter = chr(ord("A") + option_index)
     text = option.get("text", "").strip()
+    # Keep the label simple for the radio button
     return f"{letter}) {text}" if text else f"{letter}) [Image Option]"
 
+   
 
 def sort_sections(section_names):
     return sorted(section_names, key=lambda s: s.lower())
@@ -154,15 +157,19 @@ if not options:
 
 display_options = [display_option(i, opt) for i, opt in enumerate(options)]
 
+# ...
+
 selected_label = st.radio("Options:", display_options, key=choice_key)
 
+# Display images for options automatically
 for i, opt in enumerate(options):
-    if opt.get("images"):
-        with st.expander(f"Show image(s) for option {chr(ord('A') + i)}"):
-            # 
-            current_book_filename = os.path.basename(q["book_path"])
-            actual_epub_path = os.path.join(os.getcwd(), current_book_filename)
-            render_image_list(actual_epub_path, q["image_list"], width=450)
+    option_images = opt.get("images", [])
+    if option_images:
+        # We replace the st.expander with a simple caption or bold text
+        st.markdown(f"**Images for Option {chr(ord('A') + i)}:**")
+        render_image_list(q["book_path"], option_images, width=450)
+
+# ... 
 qid = f"{book}|{section}|{st.session_state.idx}"
 
 if st.button("Submit"):

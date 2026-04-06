@@ -155,7 +155,17 @@ def extract_image_names(node: Tag) -> List[str]:
             out.append(name)
     return out
 
-
+def extract_options(answer_list: Tag) -> List[Dict]:
+    options = []
+    for option_li in answer_list.find_all("li", recursive=False):
+        options.append(
+            {
+                "text": extract_option_text(option_li),
+                # This ensures images inside the <li> are captured
+                "images": extract_image_names(option_li), 
+            }
+        )
+    return options
 def get_stem_text_before_answer_list(li: Tag, answer_list: Tag) -> str:
     parts = []
 
@@ -325,7 +335,8 @@ def parse_book(book_path: str) -> Dict:
         book_title = get_book_title_from_path(book_path, opf_title)
 
         book_cache = {}
-
+        # 
+       
         for html_file in spine_files:
             if html_file not in zf.namelist():
                 continue
