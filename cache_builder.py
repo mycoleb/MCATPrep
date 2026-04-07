@@ -161,7 +161,7 @@ def extract_options(answer_list: Tag) -> List[Dict]:
         options.append(
             {
                 "text": extract_option_text(option_li),
-                # This ensures images inside the <li> are captured
+                # This makes sure images inside the <li> are captured
                 "images": extract_image_names(option_li), 
             }
         )
