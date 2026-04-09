@@ -82,11 +82,11 @@ def answer_letter_to_index(letter: str) -> int:
     return -1
 
 
-# In app.py
-def display_option(option_index: int, option: dict):
+def display_option(option_index: int, option: dict, use_uk: bool):
     letter = chr(ord("A") + option_index)
-    text = option.get("text", "").strip()
-    # Keep the label simple for the radio button
+    # Fallback to English 'text' if 'text_uk' is missing
+    field = "text_uk" if use_uk else "text"
+    text = option.get(field, option.get("text", "")).strip()
     return f"{letter}) {text}" if text else f"{letter}) [Image Option]"
 
    
@@ -119,7 +119,9 @@ if st.session_state.last_book != book or st.session_state.last_section != sectio
 if st.sidebar.button("Reset Section Progress"):
     reset_section_state()
     st.rerun()
-
+st.sidebar.markdown("---")
+language = st.sidebar.radio("Language / Мова", ["English", "Ukrainian (Українська)"])
+is_uk = language == "Ukrainian (Українська)"
 questions = quiz_data[book][section]
 
 if not questions:
@@ -155,12 +157,20 @@ if not options:
     st.error("This question has no answer choices.")
     st.stop()
 
-display_options = [display_option(i, opt) for i, opt in enumerate(options)]
+display_options = [display_option(i, opt, is_uk) for i, opt in enumerate(options)]
 
 # ...
 
 selected_label = st.radio("Options:", display_options, key=choice_key)
 
+question_field = "question_uk" if is_uk else "question"
+question_text = q.get(question_field, q.get("question", "")).strip()
+
+if question_text:
+    # Use markdown to handle potential formatting from the translator
+    st.markdown(question_text) 
+else:
+    st.write("_No stem text extracted._")
 # Display images for options automatically
 for i, opt in enumerate(options):
     option_images = opt.get("images", [])

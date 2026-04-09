@@ -7,6 +7,10 @@ from typing import Dict, List, Optional, Tuple
 from xml.etree import ElementTree as ET
 
 from bs4 import BeautifulSoup, NavigableString, Tag
+# Add this import at the top
+from deep_translator import GoogleTranslator
+
+
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 # 
@@ -386,10 +390,42 @@ def parse_book(book_path: str) -> Dict:
                 })
 
             book_cache[section_key] = question_records
+    # Initialize translator
+    translator = GoogleTranslator(source='en', target='uk')
 
-        return {book_title: book_cache}
+    return {book_title: book_cache}
 
 
+def translate_text(text: str) -> str:
+    import time
+
+# ... inside the loop where you translate ...
+def translate_text(text: str) -> str:
+    if not text or len(text) < 2:
+        return text
+    try:
+        time.sleep(0.05) # Small 50ms pause to stay under the radar
+        return translator.translate(text)
+    except Exception:
+        return text
+    
+
+    question_records.append({
+        "question_number": i,
+        "question": display_text,
+        "question_uk": translate_text(display_text), # New field
+        "options": [
+            {
+                "text": opt["text"],
+                "text_uk": translate_text(opt["text"]), # New field
+                "images": opt["images"]
+            } for opt in options
+        ],
+        "answer": answer_key[i - 1] if i - 1 < len(answer_key) else "",
+        "image_list": stem_images,
+        "book_path": book_path,
+        "source_file": html_file,
+    })
 def main():
     master_cache = {}
 

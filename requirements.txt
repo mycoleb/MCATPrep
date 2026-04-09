@@ -8,3 +8,7 @@ streamlit==1.32.0
 
 # Data Management
 pandas==2.2.1
+
+
+deep-translator
+Pillow
