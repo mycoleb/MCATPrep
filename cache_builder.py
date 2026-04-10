@@ -5,6 +5,9 @@ import zipfile
 from html import unescape
 from typing import Dict, List, Optional, Tuple
 from xml.etree import ElementTree as ET
+from deep_translator import GoogleTranslator
+import time
+from tqdm import tqdm
 
 from bs4 import BeautifulSoup, NavigableString, Tag
 # Add this import at the top
@@ -23,7 +26,17 @@ BOOKS = [
 
 OUTPUT_FILE = "localized_cache.json"
 
+translator = GoogleTranslator(source='en', target='uk')
 
+def translate_text(text: str) -> str:
+    if not text or len(text) < 2:
+        return text
+    try:
+        # Keeping your 50ms delay is smart to avoid rate limits
+        time.sleep(0.05) 
+        return translator.translate(text)
+    except Exception:
+        return text
 def clean_text(text: str) -> str:
     text = unescape(text or "")
     text = re.sub(r"\s+", " ", text).strip()
@@ -379,10 +392,18 @@ def parse_book(book_path: str) -> Dict:
                 if any(f" {i} " in ctx.get_text() or f"{i}," in ctx.get_text() for ctx in shared_context):
                     display_text = f"{context_html}\n\n{question_text}"
 
+                # 
                 question_records.append({
                     "question_number": i,
                     "question": display_text,
-                    "options": options,
+                    "question_uk": translate_text(display_text), # New field
+                    "options": [
+                        {
+                            "text": opt["text"],
+                            "text_uk": translate_text(opt["text"]), # New field
+                            "images": opt["images"]
+                        } for opt in options
+                    ],
                     "answer": answer_key[i - 1] if i - 1 < len(answer_key) else "",
                     "image_list": stem_images,
                     "book_path": book_path,
@@ -399,7 +420,7 @@ def parse_book(book_path: str) -> Dict:
 def translate_text(text: str) -> str:
     import time
 
-# ... inside the loop where you translate ...
+# ..
 def translate_text(text: str) -> str:
     if not text or len(text) < 2:
         return text
@@ -410,22 +431,7 @@ def translate_text(text: str) -> str:
         return text
     
 
-    question_records.append({
-        "question_number": i,
-        "question": display_text,
-        "question_uk": translate_text(display_text), # New field
-        "options": [
-            {
-                "text": opt["text"],
-                "text_uk": translate_text(opt["text"]), # New field
-                "images": opt["images"]
-            } for opt in options
-        ],
-        "answer": answer_key[i - 1] if i - 1 < len(answer_key) else "",
-        "image_list": stem_images,
-        "book_path": book_path,
-        "source_file": html_file,
-    })
+   
 def main():
     master_cache = {}
 

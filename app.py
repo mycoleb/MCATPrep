@@ -167,8 +167,8 @@ question_field = "question_uk" if is_uk else "question"
 question_text = q.get(question_field, q.get("question", "")).strip()
 
 if question_text:
-    # Use markdown to handle potential formatting from the translator
-    st.markdown(question_text) 
+    st.markdown(question_text)
+
 else:
     st.write("_No stem text extracted._")
 # Display images for options automatically
@@ -229,4 +229,4 @@ with col1:
 with col2:
     if st.button("Next Question"):
         st.session_state.idx = (st.session_state.idx + 1) % len(questions)
-        st.rerun()
+        st.rerun
