@@ -32,7 +32,7 @@ def translate_text(text: str) -> str:
     if not text or len(text) < 2:
         return text
     try:
-        # Keeping your 50ms delay is smart to avoid rate limits
+        # delay to avoid rate limits
         time.sleep(0.05) 
         return translator.translate(text)
     except Exception:

@@ -1,3 +1,5 @@
+#Welcome to my github, to run this file do  py -3.12 -m streamlit run app.py        
+
 import io
 import json
 import os
@@ -23,21 +25,21 @@ def get_image_from_epub(epub_path: str, image_name: str):
     if not epub_path or not image_name:
         return None
 
-    # try:
-    #     with zipfile.ZipFile(epub_path, "r") as zf:
-    #         matches = []
-    #         for name in zf.namelist():
-    #             if name.endswith(image_name) or os.path.basename(name) == image_name:
-    #                 matches.append(name)
+    try:
+        with zipfile.ZipFile(epub_path, "r") as zf:
+            matches = []
+            for name in zf.namelist():
+                if name.endswith(image_name) or os.path.basename(name) == image_name:
+                    matches.append(name)
 
-    #         if not matches:
-    #             return None
+            if not matches:
+                return None
 
-    #         with zf.open(matches[0]) as f:
-    #             img_bytes = f.read()
-    #             return Image.open(io.BytesIO(img_bytes))
-    # except Exception:
-    #     return None
+            with zf.open(matches[0]) as f:
+                img_bytes = f.read()
+                return Image.open(io.BytesIO(img_bytes))
+    except Exception:
+        return None
 
 
 def render_image_list(epub_path: str, image_list, width=400):
